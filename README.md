@@ -17,54 +17,9 @@ cd tp-networks
 
 J’ai créé le fichier docker-compose.yml pour définir les trois services, les volumes et les réseaux. Voici son contenu :
 
-version: "3.9"
+<img width="1098" height="872" alt="image" src="https://github.com/user-attachments/assets/a2ff8057-a4a1-4e18-b937-fa16c30fbcae" />
+<img width="427" height="283" alt="image" src="https://github.com/user-attachments/assets/6174caf9-8bbb-494f-937c-48322f893662" />
 
-services:
-
-  db:
-    image: mariadb:latest
-    container_name: db
-    environment:
-      MYSQL_ROOT_PASSWORD: tpnetworks
-      MYSQL_DATABASE: appdb
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppass
-    networks:
-      - backend_net
-    volumes:
-      - db_data:/var/lib/mysql
-    ports: []
-
-  app:
-    build: ./app
-    container_name: app
-    environment:
-      DB_HOST: db
-      DB_USER: appuser
-      DB_PASSWORD: apppass
-      DB_NAME: appdb
-    networks:
-      - backend_net
-    depends_on:
-      - db
-
-  proxy:
-    build: ./proxy
-    container_name: proxy
-    ports:
-      - "80:80"
-    networks:
-      - frontend_net
-      - backend_net
-    depends_on:
-      - app
-
-volumes:
-  db_data:
-
-networks:
-  backend_net:
-  frontend_net:
   
 La DB n’a aucun port publié, ce qui empêche l’accès direct depuis l’hôte.
 
@@ -81,37 +36,25 @@ Le fichier app.py existait déjà. Il contient deux routes principales :
 
 J’ai créé un Dockerfile pour l’application dans le dossier app/ :
 
-FROM python:3.11-slim
+<img width="1067" height="224" alt="image" src="https://github.com/user-attachments/assets/20f4e7ed-5650-4d69-b93e-93990bed920d" />
 
-WORKDIR /app
-COPY app.py /app
-RUN pip install flask pymysql
-
-CMD ["python", "app.py"]
 
 Cette image installe Flask et PyMySQL, puis lance l’application Flask sur le port 5000 à l’intérieur du conteneur.
 
 4️. Service Proxy (Nginx)
 Pour le proxy, j’ai créé un Dockerfile dans le dossier proxy/ :
 
-FROM nginx:latest
+<img width="1066" height="235" alt="image" src="https://github.com/user-attachments/assets/c72a2e06-2a9c-4eb2-b373-e4b47792d533" />
 
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 Et j’ai écrit un fichier nginx.conf pour rediriger tout le trafic vers l’application Flask :
 
-server {
-    listen 80;
-    server_name _;
+<img width="1042" height="291" alt="image" src="https://github.com/user-attachments/assets/20614b8f-b68d-44c2-9e3e-5a25cfa8c4b1" />
 
-    location / {
-        proxy_pass http://app:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
+
 Grâce à cette configuration, quand on accède à http://localhost:80, on tombe sur "Hello from app!" au lieu de la page par défaut de Nginx.
+
+<img width="330" height="132" alt="image" src="https://github.com/user-attachments/assets/5bb5b0b8-3d3c-4db6-961f-f1a006c0dddc" />
 
 Le proxy agit comme point d’entrée unique vers l’application, respectant la consigne de sécurité.
 
@@ -120,22 +63,30 @@ Le proxy agit comme point d’entrée unique vers l’application, respectant la
 Pour démarrer tous les services :
 
 docker compose up -d --build
+
 Vérification de l’application :
 
 curl http://localhost/
+
 # Réponse : Hello from app!
+<img width="330" height="132" alt="image" src="https://github.com/user-attachments/assets/a349a906-3273-428e-8f19-50291a8da3dc" />
+
+
 
 curl http://localhost/health
+
 # Réponse : {"status":"ok","db":"reachable"}
+<img width="384" height="145" alt="image" src="https://github.com/user-attachments/assets/0fdf30bd-da8e-4e0a-9ade-c0958a0a309c" />
+
+
 Vérification que la base n’est pas accessible directement depuis l’hôte :
 
-bash
-Copier le code
 mysql -h 127.0.0.1 -P 3306 -u appuser -p
 
 # Doit échouer car DB non exposée
 
 6️. Résultat attendu
+
 L’application Flask est accessible via le proxy Nginx.
 
 La route /health confirme que l’application peut atteindre la base de données.
