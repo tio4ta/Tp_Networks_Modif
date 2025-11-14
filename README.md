@@ -68,14 +68,14 @@ Vérification de l’application :
 
 curl http://localhost/
 
-# Réponse : Hello from app!
+**Réponse : Hello from app!**
 <img width="330" height="132" alt="image" src="https://github.com/user-attachments/assets/a349a906-3273-428e-8f19-50291a8da3dc" />
 
 
 
 curl http://localhost/health
 
-# Réponse : {"status":"ok","db":"reachable"}
+**Réponse : {"status":"ok","db":"reachable"}**
 <img width="384" height="145" alt="image" src="https://github.com/user-attachments/assets/0fdf30bd-da8e-4e0a-9ade-c0958a0a309c" />
 
 
@@ -83,7 +83,7 @@ Vérification que la base n’est pas accessible directement depuis l’hôte :
 
 mysql -h 127.0.0.1 -P 3306 -u appuser -p
 
-# Doit échouer car DB non exposée
+**Doit échouer car DB non exposée**
 
 6️. Résultat attendu
 
@@ -92,3 +92,9 @@ L’application Flask est accessible via le proxy Nginx.
 La route /health confirme que l’application peut atteindre la base de données.
 
 La base de données n’est accessible que depuis l’application et non depuis l’hôte.
+
+
+**Le push sur le docker hub :**
+
+<img width="1212" height="646" alt="image" src="https://github.com/user-attachments/assets/e943ff82-5a13-40f4-8b12-911255b74e0d" />
+
