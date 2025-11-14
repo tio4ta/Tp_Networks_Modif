@@ -98,3 +98,6 @@ La base de données n’est accessible que depuis l’application et non depuis 
 
 <img width="1212" height="646" alt="image" src="https://github.com/user-attachments/assets/e943ff82-5a13-40f4-8b12-911255b74e0d" />
 
+
+<img width="1875" height="612" alt="image" src="https://github.com/user-attachments/assets/2ce8d8ee-b61e-4555-b1cd-a26f48ee25df" />
+
