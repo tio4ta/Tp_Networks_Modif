@@ -1,4 +1,4 @@
-# TP Docker : iD-Networks
+TP Docker
 
 Le but de ce TP était de mettre en place une petite infrastructure Docker composée de trois services : une base de données MariaDB (`db`), une application Flask (`app`) qui interroge la base via PyMySQL, et un serveur Nginx (`proxy`) jouant le rôle de reverse proxy.  
 
@@ -6,18 +6,17 @@ Pour respecter les consignes, j’ai organisé les services sur deux réseaux Do
 
 ---
 
-## 1️⃣ Étapes réalisées
+1️. Étapes réalisées
 
-### Cloner le dépôt initial
+Cloner le dépôt initial
 
-```bash
 git clone https://github.com/Sylvain6/tp-networks
 cd tp-networks
-2️⃣ Fichier Docker Compose
+
+2️. Fichier Docker Compose
+
 J’ai créé le fichier docker-compose.yml pour définir les trois services, les volumes et les réseaux. Voici son contenu :
 
-yaml
-Copier le code
 version: "3.9"
 
 services:
@@ -66,24 +65,22 @@ volumes:
 networks:
   backend_net:
   frontend_net:
+  
 La DB n’a aucun port publié, ce qui empêche l’accès direct depuis l’hôte.
 
 L’application app n’expose pas de port non plus. Seul le proxy Nginx est accessible via le port 80.
 
-3️⃣ Service App (Flask)
+3️. Service App (Flask)
 Le fichier app.py existait déjà. Il contient deux routes principales :
 
 / qui retourne "Hello from app!"
 
 /health qui teste la connexion à la base et renvoie un JSON indiquant si elle est accessible :
 
-json
-Copier le code
 {"status":"ok","db":"reachable"}
+
 J’ai créé un Dockerfile pour l’application dans le dossier app/ :
 
-dockerfile
-Copier le code
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -91,21 +88,19 @@ COPY app.py /app
 RUN pip install flask pymysql
 
 CMD ["python", "app.py"]
+
 Cette image installe Flask et PyMySQL, puis lance l’application Flask sur le port 5000 à l’intérieur du conteneur.
 
-4️⃣ Service Proxy (Nginx)
+4️. Service Proxy (Nginx)
 Pour le proxy, j’ai créé un Dockerfile dans le dossier proxy/ :
 
-dockerfile
-Copier le code
 FROM nginx:latest
 
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 Et j’ai écrit un fichier nginx.conf pour rediriger tout le trafic vers l’application Flask :
 
-nginx
-Copier le code
 server {
     listen 80;
     server_name _;
@@ -120,16 +115,13 @@ Grâce à cette configuration, quand on accède à http://localhost:80, on tombe
 
 Le proxy agit comme point d’entrée unique vers l’application, respectant la consigne de sécurité.
 
-5️⃣ Lancement de l’infrastructure
+5️. Lancement de l’infrastructure
+
 Pour démarrer tous les services :
 
-bash
-Copier le code
 docker compose up -d --build
 Vérification de l’application :
 
-bash
-Copier le code
 curl http://localhost/
 # Réponse : Hello from app!
 
@@ -140,8 +132,10 @@ Vérification que la base n’est pas accessible directement depuis l’hôte :
 bash
 Copier le code
 mysql -h 127.0.0.1 -P 3306 -u appuser -p
-# Doit échouer → DB non exposée
-6️⃣ Résultat attendu
+
+# Doit échouer car DB non exposée
+
+6️. Résultat attendu
 L’application Flask est accessible via le proxy Nginx.
 
 La route /health confirme que l’application peut atteindre la base de données.
